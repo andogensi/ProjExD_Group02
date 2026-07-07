@@ -16,7 +16,60 @@ class Weapons(Feature):
     name = "武器"
 
     def setup(self, game: FPSGame) -> None:
-        self.muzzle_timer = 0.0 
+        self.muzzle_timer = 0.0
+        self.cooldown = 0.0 
+        self.reloading = False     
+        self.reload_time = 1.2     
+        self.recoil = 0
+        self.weapons = {
+            "pistol": {
+                "cooldown": 0.35,
+                "damage": 2,
+                "pellets": 1,
+                "spread": 0.0,
+                "max_ammo": 12,
+                "reload_time": 1.2,
+            },
+            "rifle": {
+                "cooldown": 0.12,
+                "damage": 1,
+                "pellets": 1,
+                "spread": 0.02,
+                "max_ammo": 30,
+                "reload_time": 1.6,
+            },
+            "shotgun": {
+                "cooldown": 0.8,
+                "damage": 1,
+                "pellets": 6,
+                "spread": 0.08,
+                "max_ammo": 6,
+                "reload_time": 2.0,
+            },
+        }
+        self.current_weapon = "pistol"
+        game.player.max_ammo = self.weapons["pistol"]["max_ammo"]
+        game.player.ammo = game.player.max_ammo
+
+    def shoot(self, game: FPSGame) -> None:
+        if self.reloading:
+            return
+        if self.cooldown > 0:
+            return
+        if game.player.ammo <= 0:
+            game.emit("empty_click", {})
+            return
+        weapon = self.weapons[self.current_weapon]
+        for _ in range(weapon["pellets"]):
+            game.fire_bullet(
+                damage=weapon["damage"],
+                spread=weapon["spread"]
+        )
+        game.player.ammo -= 1
+        self.muzzle_timer = 0.07
+        self.cooldown = weapon["cooldown"]
+        self.recoil += 10
+        game.flash((255, 230, 120), 0.08)
 
     def update(self, game: FPSGame, dt: float) -> None:
         self.muzzle_timer = max(0.0, self.muzzle_timer - dt)

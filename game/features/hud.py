@@ -82,6 +82,19 @@ class Hud(Feature):
                     if r == p_row and c == p_col:
                         game.draw_rect(x, y, 8, 8, (0, 255, 0)) 
         
+        target = game.aim_target()
+        if target is not None:
+            name = target.name
+            enemy_hp = target.data.get("hp", "???")  # 安全にHPを取得（なければ"???"）
+            
+            # 画面中央の少し上の座標を計算
+            center_x = game.width // 2
+            center_y = game.height // 2 - 60
+            
+            # 敵の名前とHPを画面に描画 (少し左にずらして中央に寄せます)
+            game.draw_text(name, center_x - 40, center_y, size=22, color=(255, 50, 50))
+            game.draw_text(f"HP: {enemy_hp}", center_x - 40, center_y + 26, size=18, color=(255, 255, 255))
+        
         game.draw_text(
             "WASD移動 / Shiftダッシュ / マウス視点 / 左クリック射撃 / ESC終了",
             20,

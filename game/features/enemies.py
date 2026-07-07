@@ -50,6 +50,17 @@ class Enemies(Feature):
         for enemy in self.enemies:
             enemy.data["attack_cooldown"] = max(0.0, enemy.data["attack_cooldown"] - dt)
 
+            dist = game.distance_to_player(enemy)
+            can_see = game.can_see(enemy, game.player)
+
+            if can_see and 3.0 <= dist <= 9.0:
+                # クールダウンが終わっていれば射撃
+                if enemy.data["attack_cooldown"] <= 0.0:
+                    game.enemy_fire(enemy, damage=8)
+                    # 射撃後のクールダウン（例: 5秒間は次の弾を撃てない）
+                    enemy.data["attack_cooldown"] = 5 
+                continue
+
             if game.can_see(enemy, game.player) and game.distance_to_player(enemy) > 1.0:
                 enemy.move_towards(game.player.x, game.player.z, speed=enemy.data["speed"], dt=dt)
 
